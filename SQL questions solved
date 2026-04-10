@@ -1,0 +1,18 @@
+Q1.Consecutive Days - Find all the users who were active for 3 consecutive days or more.
+
+WITH t AS (
+    SELECT 
+        user_id,
+        record_date,
+        ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY record_date) AS rn
+    FROM (
+        SELECT DISTINCT user_id, record_date 
+        FROM sf_events
+    ) x
+)
+SELECT user_id
+FROM t
+GROUP BY user_id, DATE_SUB(record_date, INTERVAL rn DAY)
+HAVING COUNT(*) >= 3;
+
+Q2.
