@@ -41,3 +41,43 @@ FROM (
     GROUP BY MONTH(invoicedate), description
 ) t
 WHERE rn = 1;
+
+Q4. Rank Variance per Country
+SELECT * FROM (
+    WITH monthly_comments AS (
+        SELECT 
+            u.country,
+            YEAR(c.created_at) AS yr,
+            MONTH(c.created_at) AS mn,
+            SUM(c.number_of_comments) AS total_comments
+        FROM fb_comments_count c
+        JOIN fb_active_users u 
+            ON c.user_id = u.user_id
+        WHERE c.created_at BETWEEN '2019-12-01' AND '2020-01-31'
+        GROUP BY u.country, YEAR(c.created_at), MONTH(c.created_at)
+    ),
+    ranked AS (
+        SELECT 
+            country,
+            yr,
+            mn,
+            total_comments,
+            DENSE_RANK() OVER (
+                PARTITION BY yr, mn
+                ORDER BY total_comments DESC
+            ) AS rnk
+        FROM monthly_comments
+    ),
+     pivoted AS (
+        SELECT 
+            country,
+            MAX(CASE WHEN yr = 2019 AND mn = 12 THEN rnk END) AS dec_rank,
+            MAX(CASE WHEN yr = 2020 AND mn = 1 THEN rnk END) AS jan_rank
+        FROM ranked
+        GROUP BY country
+    )
+    
+    SELECT country
+    FROM pivoted
+    WHERE jan_rank < dec_rank
+) t;
