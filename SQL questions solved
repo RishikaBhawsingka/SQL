@@ -81,3 +81,10 @@ SELECT * FROM (
     FROM pivoted
     WHERE jan_rank < dec_rank
 ) t;
+
+-- Question:
+-- Find the second highest salary from Employee table
+
+SELECT MAX(salary) AS SecondHighestSalary
+FROM Employee
+WHERE salary < (SELECT MAX(salary) FROM Employee);
