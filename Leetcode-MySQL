@@ -3,3 +3,9 @@ select firstName, lastName , city , state
 from Person 
 left join Address
 on Person.personID = Address.personID;
+#176. Second Highest Salary
+select MAX(salary) as SecondHighestSalary
+from Employee
+where salary <
+ (SELECT MAX(salary)
+    FROM Employee);
