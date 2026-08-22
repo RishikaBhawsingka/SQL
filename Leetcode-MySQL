@@ -37,3 +37,8 @@ FROM Employee e
 JOIN Employee m
 ON e.managerId = m.id
 WHERE e.salary > m.salary;
+
+#182.Duplicate emails
+select email as Email from Person
+group by email
+having count(*) > 1
